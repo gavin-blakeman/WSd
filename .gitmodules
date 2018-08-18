@@ -1,9 +1,6 @@
 [submodule "ACL"]
 	path = ACL
 	url = https://github.com/gavin-blakeman/ACL.git
-[submodule "GCL"]
-	path = GCL
-	url = https://github.com/gavin-blakeman/GCL.git
 [submodule "PCL"]
 	path = PCL
 	url = https://github.com/gavin-blakeman/PCL.git
@@ -13,3 +10,9 @@
 [submodule "MCL"]
 	path = MCL
 	url = https://github.com/gavin-blakeman/MCL.git
+[submodule "WCL"]
+	path = WCL
+	url = https://github.com/gavin-blakeman/WCL.git
+[submodule "qt-solutions"]
+	path = qt-solutions
+	url = https://github.com/qtproject/qt-solutions.git

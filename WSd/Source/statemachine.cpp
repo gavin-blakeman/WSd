@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015 Gavin Blakeman.
+//                      Copyright 2015, 2018 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -32,9 +32,8 @@
 
 #include "../Include/statemachine.h"
 
-#include "../Include/database.h"
-#include "../Include/error.h"
-#include "../Include/settings.h"
+#include "include/database.h"
+#include "include/settings.h"
 
 #include <GCL>
 
@@ -44,11 +43,13 @@
 
 namespace WSd
 {
-  /// Constructor for the state machine class.
-  //
+  /// @brief Constructor for the state machine class.
+  /// @param[in] np: The parent object of this instance.
+  /// @param[in] sid: The <std::uint32_t> site ID.
+  /// @param[in] iid: The <std::uint32_t> instrument ID.
   // 2015-05-17/GGB - Function created.
 
-  CStateMachine::CStateMachine(QObject *np, unsigned long sid, unsigned long iid)
+  CStateMachine::CStateMachine(QObject *np, std::uint32_t sid, std::uint32_t iid)
     : siteID(sid), instrumentID(iid), parent(np), pollTimer(nullptr)
   {
     tcpSocket = new tcp::CTCPSocket(parent, siteID, instrumentID);
@@ -57,9 +58,9 @@ namespace WSd
 
     pollTimer = new QTimer();
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollModeTimer()));
-    pollTimer->setInterval(VWL::settings::settings.value(VWL::settings::WS_POLLINTERVAL, 5).toInt() * 60000);
+    pollTimer->setInterval(WCL::settings::settings.value(WCL::settings::WS_POLLINTERVAL, 5).toInt() * 60000);
 
-    VWL::database.connectToDatabase();
+    WCL::database.connectToDatabase();
   }
 
   /// Destructor - Frees dynamically allocated objects
@@ -95,7 +96,7 @@ namespace WSd
     try
     {
       DEBUGMESSAGE("Connecting to database");
-      VWL::database.openDatabase();
+      WCL::database.openDatabase();
       std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     catch(...)
@@ -121,7 +122,7 @@ namespace WSd
     }
     else
     {
-      VWL::database.lastWeatherRecord(siteID, instrumentID, dateValue, timeValue);
+      WCL::database.lastWeatherRecord(siteID, instrumentID, dateValue, timeValue);
       dateValue = currentTime->tm_hour * 60 + currentTime->tm_min;                 // Time in minutes after start of day
       timeValue = (timeValue / 100) * 60 + (timeValue % 100);                                  // Convert time to minutes.
 
@@ -134,7 +135,7 @@ namespace WSd
       }
     }
 
-    VWL::database.closeDatabase();
+    WCL::database.closeDatabase();
 
     TRACEEXIT;
   }

@@ -38,8 +38,8 @@
 #include <sstream>
 #include <string>
 
-#include "database.h"
-#include "settings.h"
+#include "include/database.h"
+#include "include/settings.h"
 
 #include "Include/service.h"
 
@@ -111,23 +111,23 @@ int main(int argc, char *argv[])
     return 0;
   };
 
-  QSettings settings(VWL::settings::FILENAME, QSettings::NativeFormat);
+  QSettings settings(WCL::settings::FILENAME, QSettings::NativeFormat);
 
-  settings.setValue(VWL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
-  settings.setValue(VWL::settings::WS_PORT, QVariant(port));
-  settings.setValue(VWL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
+  settings.setValue(WCL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
+  settings.setValue(WCL::settings::WS_PORT, QVariant(port));
+  settings.setValue(WCL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
 
   boost::to_upper(dbDriver);
-  settings.setValue(VWL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
+  settings.setValue(WCL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
 
   if (dbDriver == "MYSQL")
   {
-    settings.setValue(VWL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(VWL::QDRV_MYSQL));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(WCL::QDRV_MYSQL));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
   };
 
   if (vm.count("writeSettings"))
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
       // Create the logger.
 
-  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink());
+  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink("/var/log", "WSd.log"));
 
   if (vm.count("debug") && (vm.count("trace")))
   {
@@ -154,7 +154,6 @@ int main(int argc, char *argv[])
     fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, false, false});
   };
 
-  boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->setLogFileName("/home/gavin", "WSd", ".log");
   boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->openLogFile();
 
   GCL::logger::defaultLogger().addSink(fileLogger);

@@ -37,50 +37,49 @@ TEMPLATE = app
 TARGET = WSd
 CONFIG   += console qt thread static
 
-QMAKE_CXXFLAGS += -std=c++14 -static -static-libgcc
+QMAKE_CXXFLAGS += -std=c++17 -static -static-libgcc
 
 DEFINES += BOOST_THREAD_USE_LIB
 DEFINES += QT_CORE_LIB
 DEFINES += QXT_STATIC
 DEFINES += BOOST_CHRONO_DONT_PROVIDES_DEPRECATED_IO_SINCE_V2_0_0
 
-INCLUDEPATH +=  "../../Library/QtSolutions/qtservice/src" \
-                "ACL" \
-                "boost 1.62" \
-                "../../Library/cfitsio" \
-                "GCL" \
-                "MCL" \
-                "PCL" \
-                "SCL" \
-                "../../Library/WeatherLink/Include"
+INCLUDEPATH +=  "../qt-solutions" \
+                "../ACL" \
+                "../boost 1.62" \
+                "../cfitsio" \
+                "../GCL" \
+                "../MCL" \
+                "../PCL" \
+                "../SCL" \
+                "../WCL"
 
 SOURCES += \
-    Source/WSD.cpp \
     Source/service.cpp \
     Source/statemachine.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtunixsocket.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtservice_unix.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtservice.cpp \
+    ../qt-solutions/qtservice/src/qtunixsocket.cpp \
+    ../qt-solutions/qtservice/src/qtunixserversocket.cpp \
+    ../qt-solutions/qtservice/src/qtservice_unix.cpp \
+    ../qt-solutions/qtservice/src/qtservice.cpp \
     Source/tcp.cpp \
-    ../../Library/WeatherLink/Source/GeneralFunctions.cpp \
-    ../../Library/WeatherLink/Source/database.cpp \
-    ../../Library/WeatherLink/Source/error.cpp \
-    ../../Library/WeatherLink/Source/settings.cpp
+    ../WCL/source/GeneralFunctions.cpp \
+    ../WCL/source/database.cpp \
+    ../WCL/source/error.cpp \
+    ../WCL/source/settings.cpp \
+    Source/WSd.cpp
 
 HEADERS += \
     Include/service.h \
     Include/statemachine.h \
     Include/tcp.h \
-    ../../Library/QtSolutions/qtservice/src/qtunixsocket.h \
-    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.h \
-    ../../Library/QtSolutions/qtservice/src/qtservice_p.h \
-    ../../Library/QtSolutions/qtservice/src/qtservice.h \
-    ../../Library/WeatherLink/Include/WeatherLinkIP.h \
-    ../../Library/WeatherLink/Include/GeneralFunctions.h \
-    ../../Library/WeatherLink/Include/database.h \
-    ../../Library/WeatherLink/Include/error.h \
-    ../../Library/WeatherLink/Include/settings.h
+    ../qt-solutions/qtservice/src/qtunixsocket.h \
+    ../qt-solutions/qtservice/src/qtunixserversocket.h \
+    ../qt-solutions/qtservice/src/qtservice_p.h \
+    ../qt-solutions/qtservice/src/qtservice.h \
+    ../WCL/include/WeatherLinkIP.h \
+    ../WCL/include/GeneralFunctions.h \
+    ../WCL/include/database.h \
+    ../WCL/include/settings.h
 
 win32:CONFIG(release, debug|release) {
   LIBS += -L../../Library/Library/win32/release/ -lGCL
