@@ -1,0 +1,15 @@
+[submodule "ACL"]
+	path = ACL
+	url = https://github.com/gavin-blakeman/ACL.git
+[submodule "GCL"]
+	path = GCL
+	url = https://github.com/gavin-blakeman/GCL.git
+[submodule "PCL"]
+	path = PCL
+	url = https://github.com/gavin-blakeman/PCL.git
+[submodule "SCL"]
+	path = SCL
+	url = https://github.com/gavin-blakeman/SCL.git
+[submodule "MCL"]
+	path = MCL
+	url = https://github.com/gavin-blakeman/MCL.git
