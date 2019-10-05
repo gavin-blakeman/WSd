@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2014-2015, 2018 Gavin Blakeman.
+//                      Copyright 2014-2015 Gavin Blakeman.
 //                      This file is part of the Observatory Control - Weather System (OCWS)
 //
 //                      OCWS is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -33,7 +33,7 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include "qtservice/src/QtServiceBase"
+#include <QtServiceBase>
 
 #include "../Include/statemachine.h"
 

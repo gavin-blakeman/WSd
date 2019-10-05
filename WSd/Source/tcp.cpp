@@ -1,4 +1,4 @@
-﻿//*********************************************************************************************************************************
+//*********************************************************************************************************************************
 //
 // PROJECT:							WSd (Weather Station - Daemon)
 // FILE:								tcp class
@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015, 2018 Gavin Blakeman.
+//                      Copyright 2015 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -32,11 +32,11 @@
 
 #include "../Include/tcp.h"
 
-#include "include/database.h"
-#include "include/settings.h"
+#include "../Include/database.h"
+#include "../Include/settings.h"
 
-#include "include/GeneralFunctions.h"
-#include "include/WeatherLinkIP.h"
+#include "../../WeatherLink/Include/GeneralFunctions.h"
+#include "../../WeatherLink/Include/WeatherLinkIP.h"
 
 #include <chrono>
 #include <ctime>
@@ -52,13 +52,13 @@ namespace WSd
     CTCPSocket::CTCPSocket(QObject *parent, unsigned long sid, unsigned long iid)
       : siteID(sid), instrumentID(iid), QTcpSocket(parent)
     {
-      ipAddress = WCL::settings::settings.value(WCL::settings::WS_IPADDRESS, "192.168.8.129").toString();
-      port = WCL::settings::settings.value(WCL::settings::WS_PORT, 22222).toInt();
+      ipAddress = VWL::settings::settings.value(VWL::settings::WS_IPADDRESS, "192.168.8.129").toString();
+      port = VWL::settings::settings.value(VWL::settings::WS_PORT, 22222).toInt();
     }
 
-    /// @brief Command to request the start and end archive pointers from the WeatherLinkIP module.
+    /// Command to request the start and end archive pointers from the WeatherLinkIP module.
     //
-    /// @version 2015-05-17/GGB - Function created.
+    // 2015-05-17/GGB - Function created.
 
     bool CTCPSocket::readArchive()
     {
@@ -75,7 +75,7 @@ namespace WSd
       int recordCount = 0;
 
       DEBUGMESSAGE("Reading last weather record.");
-      WCL::database.lastWeatherRecord(siteID, instrumentID, date, time);
+      VWL::database.lastWeatherRecord(siteID, instrumentID, date, time);
 
       ACL::TJD JD = ACL::TJD(static_cast<ACL::FP_t>(date) + ACL::MJD0);
 
@@ -95,7 +95,7 @@ namespace WSd
       if (waitForConnected(1000))
       {
         index = 0;
-        command[index++] = WCL::wlLF;
+        command[index++] = VWL::wlLF;
 
         loopCount = 0;
         exitWhile = false;
@@ -116,11 +116,11 @@ namespace WSd
 
         if (loopCount < 3)
         {
-          for (index = 0; index < sizeof(WCL::commandDMPAFT); index++)
+          for (index = 0; index < sizeof(VWL::commandDMPAFT); index++)
           {
-            command[index] = WCL::commandDMPAFT[index];
+            command[index] = VWL::commandDMPAFT[index];
           };
-          command[index++] = WCL::wlLF;
+          command[index++] = VWL::wlLF;
 
           writeData(command, index);
 
@@ -142,9 +142,9 @@ namespace WSd
             {
               dataLength = readData(static_cast<char *>(command), WL_MTU);
 
-              if (dataLength == 7 && command[0] == WCL::wlACK)
+              if (dataLength == 7 && command[0] == VWL::wlACK)
               {
-                WCL::SDMPAFTResponse *response = reinterpret_cast<WCL::SDMPAFTResponse *>(command + 1);
+                VWL::SDMPAFTResponse *response = reinterpret_cast<VWL::SDMPAFTResponse *>(command + 1);
 
                 uint16_t pageCount = response->pages;
                 uint8_t firstRecord = response->firstRecord;
@@ -154,17 +154,17 @@ namespace WSd
                 while (pageCount > 0)
                 {
                   index = 0;
-                  command[index++] = WCL::wlACK;
+                  command[index++] = VWL::wlACK;
                   writeData(command, index);
 
                   if (waitForReadyRead(5000))
                   {
                     dataLength = readData(static_cast<char *>(command), WL_MTU);
-                    WCL::SDumpPage *dataResponse = reinterpret_cast<WCL::SDumpPage *>(command);
+                    VWL::SDumpPage *dataResponse = reinterpret_cast<VWL::SDumpPage *>(command);
 
                     for (index = firstRecord; index < 5; index++)
                     {
-                      if (WCL::database.insertRecord(siteID, instrumentID, dataResponse->record[index]))
+                      if (VWL::database.insertRecord(siteID, instrumentID, dataResponse->record[index]))
                       {
                         recordCount++;
                       };
@@ -235,7 +235,7 @@ namespace WSd
       if (waitForConnected(1000))
       {
         index = 0;
-        command[index++] = WCL::wlLF;
+        command[index++] = VWL::wlLF;
 
         loopCount = 0;
         exitWhile = false;
@@ -256,11 +256,11 @@ namespace WSd
 
         if (loopCount < 3)
         {
-          for (index = 0; index < sizeof(WCL::commandSETTIME); index++)
+          for (index = 0; index < sizeof(VWL::commandSETTIME); index++)
           {
-            command[index] = WCL::commandSETTIME[index];
+            command[index] = VWL::commandSETTIME[index];
           };
-          command[index++] = WCL::wlLF;
+          command[index++] = VWL::wlLF;
           writeData(command, index);
 
           if (waitForReadyRead(5000))
@@ -281,7 +281,7 @@ namespace WSd
             if (waitForReadyRead(5000))
             {
               dataLength = readData(static_cast<char *>(command), WL_MTU);
-              if (dataLength == 1 && command[0] == WCL::wlACK)
+              if (dataLength == 1 && command[0] == VWL::wlACK)
               {
                 returnValue = true;
               };

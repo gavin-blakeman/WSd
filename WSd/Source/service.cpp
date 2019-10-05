@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015, 2018 Gavin Blakeman.
+//                      Copyright 2015 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -38,8 +38,8 @@
 #include <QTimer>
 #include <QtNetwork>
 
-#include "include/database.h"
-#include "include/settings.h"
+#include "database.h"
+#include "settings.h"
 
 #include <GCL>
 
@@ -52,10 +52,9 @@ namespace WSd
   int const BUILDNUMBER = 0x0056;
   std::string const BUILDDATE(__DATE__);
 
-  /// @brief Returns the copyright string.
-  /// @returns The copyright string
-  /// @throws None.
-  /// @version 2015-05-17/GGB - Function created.
+  /// Returns the copyright string.
+  //
+  // 2015-05-17/GGB - Function created.
 
   std::string getCopyrightString()
   {
@@ -104,8 +103,8 @@ namespace WSd
       : QtService<QCoreApplication>(argc, argv, "WSd"), stateMachine(nullptr), siteID(sid), instrumentID(iid)
     {
       TRACEENTER;
-      application()->setOrganizationName(WCL::settings::ORG_NAME);
-      application()->setApplicationName(WCL::settings::APPL_NAME);
+      application()->setOrganizationName(VWL::settings::ORG_NAME);
+      application()->setApplicationName(VWL::settings::APPL_NAME);
 
       setServiceDescription("Weather Station - Daemon");
 
@@ -147,7 +146,7 @@ namespace WSd
         /* Write some messages for the user. */
 
       GCL::logger::defaultLogger().logMessage(GCL::logger::info, "Application: WSd.");
-      GCL::logger::defaultLogger().logMessage(GCL::logger::info, "Copyright: Gavin Blakeman 2015, 2018.");
+      GCL::logger::defaultLogger().logMessage(GCL::logger::info, "Copyright: Gavin Blakeman 2015.");
       GCL::logger::defaultLogger().logMessage(GCL::logger::info, "License: GPLv2.");
       os << "Release Number: " << getReleaseString() << ". Release Date: " << getReleaseDate();
       GCL::logger::defaultLogger().logMessage(GCL::logger::info, os.str());

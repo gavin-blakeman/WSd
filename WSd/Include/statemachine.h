@@ -1,4 +1,4 @@
-﻿//*********************************************************************************************************************************
+//*********************************************************************************************************************************
 //
 // PROJECT:							WSd (Weather Station - Daemon)
 // FILE:								StateMachine
@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015, 2018 Gavin Blakeman.
+//                      Copyright 2015 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -33,8 +33,6 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-  // Standard C++ header files.
-
 #include <cstdint>
 
 #include <Qt>
@@ -49,8 +47,8 @@ namespace WSd
     Q_OBJECT
 
   public:
-    std::uint32_t siteID;
-    std::uint32_t instrumentID;
+    unsigned long siteID;
+    unsigned long instrumentID;
 
   private:
     QObject *parent;
@@ -63,7 +61,7 @@ namespace WSd
 
   protected:
   public:
-    CStateMachine(QObject *, std::uint32_t site, std::uint32_t instrument);
+    CStateMachine(QObject *, unsigned long site, unsigned long instrument);
     virtual ~CStateMachine();
 
     void start();

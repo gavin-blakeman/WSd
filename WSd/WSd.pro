@@ -10,7 +10,7 @@
 ## AUTHOR:							Gavin Blakeman (GGB)
 ## LICENSE:             GPLv2
 ##
-##                      Copyright 2015, 2017 Gavin Blakeman.
+##                      Copyright 2015, 2019 Gavin Blakeman.
 ##                      This file is part of the Weather Station - Daemon (WSd)
 ##
 ##                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -26,7 +26,8 @@
 ##
 ## OVERVIEW:            Project File.
 ##
-## HISTORY:             2015-05-17/GGB - Development of classes for WSd.
+## HISTORY:             2019-10-05/GGB - Changed compiler to use C++17.
+##											2015-05-17/GGB - Development of classes for WSd.
 ##
 ##**********************************************************************************************************************************
 
@@ -44,42 +45,42 @@ DEFINES += QT_CORE_LIB
 DEFINES += QXT_STATIC
 DEFINES += BOOST_CHRONO_DONT_PROVIDES_DEPRECATED_IO_SINCE_V2_0_0
 
-INCLUDEPATH +=  "../qt-solutions" \
-                "../ACL" \
-                "../boost 1.62" \
-                "../cfitsio" \
-                "../GCL" \
-                "../MCL" \
-                "../PCL" \
-                "../SCL" \
-                "../WCL"
+INCLUDEPATH +=  "../../Library/QtSolutions/qtservice/src" \
+                "../../Library/ACL" \
+                "../../Library/Boost/boost 1.55.0" \
+                "../../Library/GCL" \
+                "../../Library/MCL" \
+                "../../Library/PCL" \
+                "../../Library/SCL" \
+                "../../Library/WeatherLink/Include"
 
 SOURCES += \
+    Source/WSD.cpp \
     Source/service.cpp \
     Source/statemachine.cpp \
-    ../qt-solutions/qtservice/src/qtunixsocket.cpp \
-    ../qt-solutions/qtservice/src/qtunixserversocket.cpp \
-    ../qt-solutions/qtservice/src/qtservice_unix.cpp \
-    ../qt-solutions/qtservice/src/qtservice.cpp \
+    ../../Library/QtSolutions/qtservice/src/qtunixsocket.cpp \
+    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.cpp \
+    ../../Library/QtSolutions/qtservice/src/qtservice_unix.cpp \
+    ../../Library/QtSolutions/qtservice/src/qtservice.cpp \
     Source/tcp.cpp \
-    ../WCL/source/GeneralFunctions.cpp \
-    ../WCL/source/database.cpp \
-    ../WCL/source/error.cpp \
-    ../WCL/source/settings.cpp \
-    Source/WSd.cpp
+    ../../Library/WeatherLink/Source/GeneralFunctions.cpp \
+    ../../Library/WeatherLink/Source/database.cpp \
+    ../../Library/WeatherLink/Source/error.cpp \
+    ../../Library/WeatherLink/Source/settings.cpp
 
 HEADERS += \
     Include/service.h \
     Include/statemachine.h \
     Include/tcp.h \
-    ../qt-solutions/qtservice/src/qtunixsocket.h \
-    ../qt-solutions/qtservice/src/qtunixserversocket.h \
-    ../qt-solutions/qtservice/src/qtservice_p.h \
-    ../qt-solutions/qtservice/src/qtservice.h \
-    ../WCL/include/WeatherLinkIP.h \
-    ../WCL/include/GeneralFunctions.h \
-    ../WCL/include/database.h \
-    ../WCL/include/settings.h
+    ../../Library/QtSolutions/qtservice/src/qtunixsocket.h \
+    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.h \
+    ../../Library/QtSolutions/qtservice/src/qtservice_p.h \
+    ../../Library/QtSolutions/qtservice/src/qtservice.h \
+    ../../Library/WeatherLink/Include/WeatherLinkIP.h \
+    ../../Library/WeatherLink/Include/GeneralFunctions.h \
+    ../../Library/WeatherLink/Include/database.h \
+    ../../Library/WeatherLink/Include/error.h \
+    ../../Library/WeatherLink/Include/settings.h
 
 win32:CONFIG(release, debug|release) {
   LIBS += -L../../Library/Library/win32/release/ -lGCL

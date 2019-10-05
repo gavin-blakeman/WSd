@@ -1,4 +1,4 @@
-﻿//*********************************************************************************************************************************
+//*********************************************************************************************************************************
 //
 // PROJECT:							WSd (Weather Station - Daemon)
 // FILE:								main application
@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015, 2018 Gavin Blakeman.
+//                      Copyright 2015 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -38,8 +38,8 @@
 #include <sstream>
 #include <string>
 
-#include "include/database.h"
-#include "include/settings.h"
+#include "database.h"
+#include "settings.h"
 
 #include "Include/service.h"
 
@@ -52,11 +52,9 @@
 
 #include <GCL>
 
-/// @brief Main function for the service.
-/// @param[in] argc: Number of command line arguments
-/// @param[in] argv: Comamnd line arguments.
-/// @version 2018-08-13/GGB - Corrected order of parameters when creating the file logger.
-/// @version 2015-05-17/GGB - Function created.
+/// Main function for the service.
+//
+// 2015-05-17/GGB - Function created.
 
 int main(int argc, char *argv[])
 {
@@ -101,7 +99,9 @@ int main(int argc, char *argv[])
       ;
 
   boost::program_options::variables_map vm;
-  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(cmdLine).run(), vm);
+  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).
+                                options(cmdLine)
+                                .run(), vm);
   boost::program_options::notify(vm);
 
   if (vm.count("help"))
@@ -111,23 +111,23 @@ int main(int argc, char *argv[])
     return 0;
   };
 
-  QSettings settings(WCL::settings::FILENAME, QSettings::NativeFormat);
+  QSettings settings(VWL::settings::FILENAME, QSettings::NativeFormat);
 
-  settings.setValue(WCL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
-  settings.setValue(WCL::settings::WS_PORT, QVariant(port));
-  settings.setValue(WCL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
+  settings.setValue(VWL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
+  settings.setValue(VWL::settings::WS_PORT, QVariant(port));
+  settings.setValue(VWL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
 
   boost::to_upper(dbDriver);
-  settings.setValue(WCL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
+  settings.setValue(VWL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
 
   if (dbDriver == "MYSQL")
   {
-    settings.setValue(WCL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(WCL::QDRV_MYSQL));
-    settings.setValue(WCL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
-    settings.setValue(WCL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
-    settings.setValue(WCL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
-    settings.setValue(WCL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
-    settings.setValue(WCL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(VWL::QDRV_MYSQL));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
+    settings.setValue(VWL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
   };
 
   if (vm.count("writeSettings"))
@@ -139,21 +139,22 @@ int main(int argc, char *argv[])
 
       // Create the logger.
 
-  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink("/var/log", "WSd.log"));
+  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink());
 
   if (vm.count("debug") && (vm.count("trace")))
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, true, true});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, true});
   }
   else if (vm.count("debug"))
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, false, false});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{false, true, true, true, true, true});
   }
   else
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, false, false});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{false, false, true, true, true, true});
   };
 
+  boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->setLogFileName("/home/gavin", "WSd", ".log");
   boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->openLogFile();
 
   GCL::logger::defaultLogger().addSink(fileLogger);
