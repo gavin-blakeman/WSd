@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2014-2015 Gavin Blakeman.
+//                      Copyright 2014-2015, 2020 Gavin Blakeman.
 //                      This file is part of the Observatory Control - Weather System (OCWS)
 //
 //                      OCWS is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -33,9 +33,18 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <QtServiceBase>
+  // Standard C++ library header files
 
-#include "../Include/statemachine.h"
+#include <cstdint>
+#include <memory>
+
+  // Miscellaneous library header files
+
+#include "qtservice.h"
+
+  // WSd header files
+
+#include "include/statemachine.h"
 
 namespace WSd
 {
@@ -46,9 +55,9 @@ namespace WSd
       Q_OBJECT
 
     private:
-      CStateMachine *stateMachine;
-      unsigned long siteID;
-      unsigned long instrumentID;
+      std::unique_ptr<CStateMachine> stateMachine;
+      std::uint32_t siteID;
+      std::uint32_t instrumentID;
 
     protected:
       void start();
@@ -57,8 +66,7 @@ namespace WSd
       void resume();
 
     public:
-      CWSService(int argc, char **argv, unsigned long siteID, unsigned long instrumentID);
-      virtual ~CWSService();
+      CWSService(int argc, char **argv, std::uint32_t siteID, std::uint32_t instrumentID);
     };
 
   } // namespace service

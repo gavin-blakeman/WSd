@@ -1,4 +1,4 @@
-//*********************************************************************************************************************************
+﻿//*********************************************************************************************************************************
 //
 // PROJECT:							WSd (Weather Station - Daemon)
 // FILE:								main application
@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015 Gavin Blakeman.
+//                      Copyright 2015, 2020 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -30,18 +30,20 @@
 //
 //*********************************************************************************************************************************
 
-#include <Qt>
-#include <QCoreApplication>
+  // Standard C++ library header files
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 
-#include "database.h"
-#include "settings.h"
+  // Qt Library header files
 
-#include "Include/service.h"
+#include <Qt>
+#include <QCoreApplication>
+
+  // Miscellaneous libraries
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/ip/address_v4.hpp>
@@ -49,12 +51,20 @@
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/program_options.hpp>
-
 #include <GCL>
+#include <QCL>
+#include <WCL>
 
-/// Main function for the service.
-//
-// 2015-05-17/GGB - Function created.
+  // WSd header files
+
+#include "include/settings.h"
+#include "include/service.h"
+
+/// @brief Main function for the service.
+/// @param[in] argc: The number of command line arguments
+/// @param[in] argv: The command line arguments
+/// @returns
+/// @version 2015-05-17/GGB - Function created.
 
 int main(int argc, char *argv[])
 {
@@ -99,9 +109,7 @@ int main(int argc, char *argv[])
       ;
 
   boost::program_options::variables_map vm;
-  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).
-                                options(cmdLine)
-                                .run(), vm);
+  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(cmdLine).run(), vm);
   boost::program_options::notify(vm);
 
   if (vm.count("help"))
@@ -111,23 +119,23 @@ int main(int argc, char *argv[])
     return 0;
   };
 
-  QSettings settings(VWL::settings::FILENAME, QSettings::NativeFormat);
+  QSettings settings(WCL::settings::FILENAME, QSettings::IniFormat);
 
-  settings.setValue(VWL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
-  settings.setValue(VWL::settings::WS_PORT, QVariant(port));
-  settings.setValue(VWL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
+  settings.setValue(WCL::settings::WS_IPADDRESS, QVariant(QString::fromStdString(ipaddr)));
+  settings.setValue(WCL::settings::WS_PORT, QVariant(port));
+  settings.setValue(WCL::settings::WS_POLLINTERVAL, QVariant(pollInterval));
 
   boost::to_upper(dbDriver);
-  settings.setValue(VWL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
+  settings.setValue(WCL::settings::WEATHER_DATABASE, QVariant(QString::fromStdString(dbDriver)));
 
   if (dbDriver == "MYSQL")
   {
-    settings.setValue(VWL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(VWL::QDRV_MYSQL));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
-    settings.setValue(VWL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_DRIVERNAME, QVariant(QCL::QDRV_MYSQL));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_HOSTADDRESS, QVariant(QString::fromStdString(dbIP)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_PORT, QVariant(dbPort));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_DATABASENAME, QVariant(QString::fromStdString(dbName)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_USERNAME, QVariant(QString::fromStdString(dbUser)));
+    settings.setValue(WCL::settings::WEATHER_MYSQL_PASSWORD, QVariant(QString::fromStdString(dbPassword)));
   };
 
   if (vm.count("writeSettings"))
@@ -139,23 +147,22 @@ int main(int argc, char *argv[])
 
       // Create the logger.
 
-  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink());
+  GCL::logger::PLoggerSink fileLogger(new GCL::logger::CFileSink("", "WSd", ".log"));
 
   if (vm.count("debug") && (vm.count("trace")))
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, true});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, true, true, true});
   }
   else if (vm.count("debug"))
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{false, true, true, true, true, true});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{.fCritical = true, true, true, true, true, false, false});
   }
   else
   {
-    fileLogger->setLogLevel(GCL::logger::CSeverity{false, false, true, true, true, true});
+    fileLogger->setLogLevel(GCL::logger::CSeverity{true, true, true, true, false, false, false});
   };
 
-  boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->setLogFileName("/home/gavin", "WSd", ".log");
-  boost::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->openLogFile();
+  std::dynamic_pointer_cast<GCL::logger::CFileSink>(fileLogger)->openLogFile();
 
   GCL::logger::defaultLogger().addSink(fileLogger);
   GCL::logger::defaultLogger().logMessage(GCL::logger::debug, "File Logger Created.");
@@ -175,30 +182,30 @@ int main(int argc, char *argv[])
     GCL::logger::defaultLogger().shutDown();
     return returnValue;
 
-    }
-    catch (GCL::CError &error)
-    {
-      boost::chrono::system_clock::time_point timeStamp = boost::chrono::system_clock::now();
-      std::clog << "[" << timeStamp << "] - ";
-      std::clog << "GCL unhandled exception: " << error.errorCode() << " - ";
-      std::clog << error.errorMessage() << std::endl;
+  }
+  catch (GCL::CError &error)
+  {
+    boost::chrono::system_clock::time_point timeStamp = boost::chrono::system_clock::now();
+    std::clog << "[" << timeStamp << "] - ";
+    std::clog << "GCL unhandled exception: " << error.errorCode() << " - ";
+    std::clog << error.errorMessage() << std::endl;
 
-      timeStamp = boost::chrono::system_clock::now();
-      std::clog << "[" << timeStamp << "] - ";
-      std::clog << "Application Terminated: Return Value: " << error.errorCode() << std::endl;
+    timeStamp = boost::chrono::system_clock::now();
+    std::clog << "[" << timeStamp << "] - ";
+    std::clog << "Application Terminated: Return Value: " << error.errorCode() << std::endl;
 
-      returnValue = ( error.errorCode() );
-    }
-    catch(...)
-    {
-      boost::chrono::system_clock::time_point timeStamp = boost::chrono::system_clock::now();
-      std::clog << "[" << timeStamp << "] - ";
-      std::clog << "Unable to initialise logger. Terminating" << std::endl;
-      returnValue = -2;
-      timeStamp = boost::chrono::system_clock::now();
-      std::clog << "[" << timeStamp << "] - ";
-      std::clog << "Application Terminated: Return Value: " << returnValue << std::endl;
-    };
+    returnValue = ( error.errorCode() );
+  }
+  catch(...)
+  {
+    boost::chrono::system_clock::time_point timeStamp = boost::chrono::system_clock::now();
+    std::clog << "[" << timeStamp << "] - ";
+    std::clog << "Unable to initialise logger. Terminating" << std::endl;
+    returnValue = -2;
+    timeStamp = boost::chrono::system_clock::now();
+    std::clog << "[" << timeStamp << "] - ";
+    std::clog << "Application Terminated: Return Value: " << returnValue << std::endl;
+  };
 
   GCL::logger::defaultLogger().shutDown();
   return returnValue;

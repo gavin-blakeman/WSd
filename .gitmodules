@@ -13,9 +13,9 @@
 [submodule "WCL"]
 	path = WCL
 	url = https://github.com/gavin-blakeman/WCL.git
-[submodule "qt-solutions"]
-	path = qt-solutions
-	url = https://github.com/qtproject/qt-solutions.git
 [submodule "GCL"]
 	path = GCL
 	url = https://github.com/gavin-blakeman/GCL.git
+[submodule "QCL"]
+	path = QCL
+	url = https://github.com/gavin-blakeman/QCL.git

@@ -1,16 +1,16 @@
 ﻿//*********************************************************************************************************************************
 //
 // PROJECT:							WSd (Weather Station - Daemon)
-// FILE:								tcp class
-// SUBSYSTEM:						main(...)
+// FILE:								StateMachine
+// SUBSYSTEM:						StateMachine
 // LANGUAGE:						C++
 // TARGET OS:						UNIX/LINUX/WINDOWS/MAC
 // LIBRARY DEPENDANCE:	Qt
-// NAMESPACE:						WSd
+// NAMESPACE:						WSd:settings
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015 Gavin Blakeman.
+//                      Copyright 2015, 2020 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -24,43 +24,61 @@
 //                      You should have received a copy of the GNU General Public License along with WSd.  If not,
 //                      see <http://www.gnu.org/licenses/>.
 //
-// OVERVIEW:            Implements the main(...) function
+// OVERVIEW:            Implements the service
 //
-// HISTORY:             2015-05-17/GGB - Development of classes for WSd
+// HISTORY:             2015-05-17/GGB - Development of classes for WSd.
 //
 //*********************************************************************************************************************************
 
-#ifndef TCP_H
-#define TCP_H
+#ifndef STATEMACHINE_H
+#define STATEMACHINE_H
 
-#include <QtNetwork>
+  // Standard C++ library  header files
 
-#include "boost/shared_ptr.hpp"
+#include <cstdint>
+
+  // Miscellaneousl library header files
+
+#include <Qt>
+
+  // WSd header files
+
+#include "tcp.h"
 
 namespace WSd
 {
-  namespace tcp
+
+  class CStateMachine : public QObject
   {
-    class CTCPSocket : public QTcpSocket
-    {
-      Q_OBJECT
+    Q_OBJECT
 
-    private:
-      unsigned long siteID;
-      unsigned long instrumentID;
-      QString ipAddress;
-      qint16 port;
+  public:
+    std::uint32_t siteID;
+    std::uint32_t  instrumentID;
 
-    protected:
+  private:
+    QObject *parent;
+    //EPollState pollModeState;
+    CTCPSocket *tcpSocket = nullptr;
+    uint16_t recordsToFetch = 0;
+    uint32_t lastJDReceived = 0;
+    uint32_t lastSecReceived = 0;
+    QTimer *pollTimer;
 
-    public:
-      CTCPSocket(QObject *parent, unsigned long sid, unsigned long iid);
+  protected:
+  public:
+    CStateMachine(QObject *, std::uint32_t site, std::uint32_t instrument);
+    virtual ~CStateMachine();
 
-      bool readArchive();
-      bool setTime();
-    };
+    void start();
+    void stop();
 
-  }   // namespace tcp
-}   // namespace WSd
+  public slots:
+    void pollModeTimer();
+  };
 
-#endif // TCP_H
+
+} // namespace OCWS
+
+
+#endif // STATEMACHINE_H

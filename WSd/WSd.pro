@@ -10,7 +10,7 @@
 ## AUTHOR:							Gavin Blakeman (GGB)
 ## LICENSE:             GPLv2
 ##
-##                      Copyright 2015, 2019 Gavin Blakeman.
+##                      Copyright 2015, 2019-2020 Gavin Blakeman.
 ##                      This file is part of the Weather Station - Daemon (WSd)
 ##
 ##                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -31,12 +31,12 @@
 ##
 ##**********************************************************************************************************************************
 
-QT       += core network sql
-QT       -= gui
-
 TEMPLATE = app
 TARGET = WSd
-CONFIG   += console qt thread static
+CONFIG   += console qt thread static link_prl
+
+QT       += core network sql
+QT       -= gui
 
 QMAKE_CXXFLAGS += -std=c++17 -static -static-libgcc
 
@@ -45,42 +45,32 @@ DEFINES += QT_CORE_LIB
 DEFINES += QXT_STATIC
 DEFINES += BOOST_CHRONO_DONT_PROVIDES_DEPRECATED_IO_SINCE_V2_0_0
 
-INCLUDEPATH +=  "../../Library/QtSolutions/qtservice/src" \
-                "../../Library/ACL" \
-                "../../Library/Boost/boost 1.55.0" \
-                "../../Library/GCL" \
-                "../../Library/MCL" \
-                "../../Library/PCL" \
-                "../../Library/SCL" \
-                "../../Library/WeatherLink/Include"
+OBJECTS_DIR = "objects"
+MOC_DIR = "moc"
+
+INCLUDEPATH +=  \
+  "../qtservice/src" \
+  "../ACL" \
+  "/home/gavin/Documents/Projects/software/Library/Boost/boost_1_71_0" \
+  "../GCL" \
+  "../MCL" \
+  "../PCL" \
+  "../SCL" \
+  "../QCL" \
+  "../WCL" \
+  "../LibRaw" \
+  "../cfitsio"
 
 SOURCES += \
-    Source/WSD.cpp \
-    Source/service.cpp \
-    Source/statemachine.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtunixsocket.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtservice_unix.cpp \
-    ../../Library/QtSolutions/qtservice/src/qtservice.cpp \
-    Source/tcp.cpp \
-    ../../Library/WeatherLink/Source/GeneralFunctions.cpp \
-    ../../Library/WeatherLink/Source/database.cpp \
-    ../../Library/WeatherLink/Source/error.cpp \
-    ../../Library/WeatherLink/Source/settings.cpp
+    source/WSD.cpp \
+    source/service.cpp \
+    source/statemachine.cpp \
+    source/tcp.cpp \
 
 HEADERS += \
-    Include/service.h \
-    Include/statemachine.h \
-    Include/tcp.h \
-    ../../Library/QtSolutions/qtservice/src/qtunixsocket.h \
-    ../../Library/QtSolutions/qtservice/src/qtunixserversocket.h \
-    ../../Library/QtSolutions/qtservice/src/qtservice_p.h \
-    ../../Library/QtSolutions/qtservice/src/qtservice.h \
-    ../../Library/WeatherLink/Include/WeatherLinkIP.h \
-    ../../Library/WeatherLink/Include/GeneralFunctions.h \
-    ../../Library/WeatherLink/Include/database.h \
-    ../../Library/WeatherLink/Include/error.h \
-    ../../Library/WeatherLink/Include/settings.h
+    include/service.h \
+    include/statemachine.h \
+    include/tcp.h \
 
 win32:CONFIG(release, debug|release) {
   LIBS += -L../../Library/Library/win32/release/ -lGCL
@@ -89,7 +79,6 @@ else:win32:CONFIG(debug, debug|release) {
   LIBS += -L../../Library/Library/win32/debug -lACL
   LIBS += -L../../Library/Library/win32/debug -lGCL
   LIBS += -L../../Library/Library/win32/debug -lPCL
-  LIBS += -L../../Library/Library/win32/debug -lQwt
   LIBS += -L../../Library/Library/win32/debug -lSCL
   LIBS += -L../../Library/Library/win32/debug -lboost_filesystem
   LIBS += -L../../Library/Library/win32/debug -lboost_system
@@ -97,30 +86,36 @@ else:win32:CONFIG(debug, debug|release) {
   LIBS += -L../../Library/Library/win32/debug -lQxt
 }
 else:unix:CONFIG(debug, debug|release) {
-  LIBS += -L../../Library/Library/unix/debug -lACL
-  LIBS += -L../../Library/Library/unix/debug -lGCL
-  LIBS += -L../../Library/Library/unix/debug -lPCL
-  #LIBS += -L../../Library/Library/unix/debug -lSCL
-  LIBS += -L../../Library/Library -lSOFA
-  LIBS += -L../../../Library/Library/unix/debug -lboost_chrono
-  LIBS += -L../../../Library/Library/unix/debug -lboost_filesystem
-  LIBS += -L../../../Library/Library/unix/debug -lboost_program_options
-  LIBS += -L../../../Library/Library/unix/debug -lboost_system
-  LIBS += -L../../../Library/Library/unix/debug -lboost_thread
-  LIBS += -L../../../Library/Library -lQxt
+  LIBS += -L../ACL -lACL
+  LIBS += -L../GCL -lGCL
+  LIBS += -L../PCL -lPCL
+  LIBS += -L../SCL -lSCL
+  LIBS += -L../QCL -lQCL
+  LIBS += -L../WCL -lWCL
+  LIBS += -L../SOFA -lSOFA
+  LIBS += -L../qtservice -lqtservice
+  LIBS += -L/usr/local/lib -lboost_chrono
+  LIBS += -L/usr/local/lib -lboost_filesystem
+  LIBS += -L/usr/local/lib -lboost_program_options
+  LIBS += -L/usr/local/lib -lboost_system
+  LIBS += -L/usr/local/lib -lboost_thread
+  LIBS += -L/usr/local/lib -lboost_locale
 }
 else:unix:CONFIG(release, debug|release) {
-  LIBS += -L../../Library/Library/unix/release -lACL
-  LIBS += -L../../../Library/Library/unix/release -lGCL
-  LIBS += -L../../../Library/Library/unix/release -lPCL
-  LIBS += -L../../../Library/Library/unix/release -lSCL
-  LIBS += -L../../Library/Library -lSOFA
-  LIBS += -L../../../Library/Library/unix/release -lboost_chrono
-  LIBS += -L../../../Library/Library/unix/release -lboost_filesystem
-  LIBS += -L../../../Library/Library/unix/release -lboost_program_options
-  LIBS += -L../../../Library/Library/unix/release -lboost_system
-  LIBS += -L../../../Library/Library/unix/release -lboost_thread
-  LIBS += -L../../../Library/Library/unix/release -lQxt
+  LIBS += -L../ACL -lACL
+  LIBS += -L../GCL -lGCL
+  LIBS += -L../PCL -lPCL
+  LIBS += -L../SCL -lSCL
+  LIBS += -L../QCL -lQCL
+  LIBS += -L../WCL -lWCL
+  LIBS += -L../SOFA -lSOFA
+  LIBS += -L../qtservice -lqtservice
+  LIBS += -L/usr/local/lib -lboost_chrono
+  LIBS += -L/usr/local/lib -lboost_filesystem
+  LIBS += -L/usr/local/lib -lboost_program_options
+  LIBS += -L/usr/local/lib -lboost_system
+  LIBS += -L/usr/local/lib -lboost_thread
+  LIBS += -L/usr/local/lib -lboost_locale
 }
 
 OTHER_FILES += \

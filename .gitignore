@@ -43,3 +43,5 @@ target_wrapper.*
 CMakeLists.txt.user*
 
 *.txt~
+
+*.2-pre1

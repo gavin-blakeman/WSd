@@ -10,7 +10,7 @@
 // AUTHOR:							Gavin Blakeman (GGB)
 // LICENSE:             GPLv2
 //
-//                      Copyright 2015 Gavin Blakeman.
+//                      Copyright 2015, 2020 Gavin Blakeman.
 //                      This file is part of the Weather Station - Daemon (WSd)
 //
 //                      WSd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -30,31 +30,37 @@
 //
 //*********************************************************************************************************************************
 
-#include "../Include/service.h"
+#include "include/service.h"
 
+  // Standard C++ library header files
+
+  // Miscellaneous library header files
+
+#include "boost/format.hpp"
+#include <GCL>
 #include <Qt>
 #include <QCoreApplication>
 #include <QtCore>
 #include <QTimer>
 #include <QtNetwork>
 
-#include "database.h"
-#include "settings.h"
+  // WSd header files
 
-#include <GCL>
+#include "include/database.h"
+#include "include/settings.h"
 
 namespace WSd
 {
     // Software version information
 
-  int const MAJORVERSION	= 2015;       // Major version (year)
-  int const MINORVERSION	= 5;         // Minor version (month)
-  int const BUILDNUMBER = 0x0056;
+  int const MAJORVERSION	= 2020;       // Major version (year)
+  int const MINORVERSION	= 10;         // Minor version (month)
+  int const BUILDNUMBER = 0x0000;
   std::string const BUILDDATE(__DATE__);
 
-  /// Returns the copyright string.
-  //
-  // 2015-05-17/GGB - Function created.
+  /// @brief Returns the copyright string.
+  /// @returns The copyright string.
+  /// @version 2015-05-17/GGB - Function created.
 
   std::string getCopyrightString()
   {
@@ -95,33 +101,18 @@ namespace WSd
   namespace service
   {
 
-    /// Constructor for the service.
+    /// @brief Constructor for the service.
     ///
-    // 2015-05-17/GGB - Function created.
+    /// @version 2015-05-17/GGB - Function created.
 
-    CWSService::CWSService(int argc, char **argv, unsigned long sid, unsigned long iid)
+    CWSService::CWSService(int argc, char **argv, std::uint32_t sid, std::uint32_t iid)
       : QtService<QCoreApplication>(argc, argv, "WSd"), stateMachine(nullptr), siteID(sid), instrumentID(iid)
     {
       TRACEENTER;
-      application()->setOrganizationName(VWL::settings::ORG_NAME);
-      application()->setApplicationName(VWL::settings::APPL_NAME);
 
       setServiceDescription("Weather Station - Daemon");
 
       TRACEEXIT;
-    }
-
-    /// Destructor for the class.
-    //
-    // 2015-05-17/GGB - Function created.
-
-    CWSService::~CWSService()
-    {
-      if (stateMachine)
-      {
-        delete stateMachine;
-        stateMachine = nullptr;
-      }
     }
 
     /// Function to resume the daemon
@@ -134,9 +125,9 @@ namespace WSd
       stateMachine->start();
     }
 
-    /// This is the main part of the service. All the code for the service creation needs to go in here.
-    //
-    // 2014-07-24/GGB - Function created.
+    /// @brief    This is the main part of the service. All the code for the service creation needs to go in here.
+    /// @version  2020-10-25/GGB - Changed logging function to use simple versions.
+    /// @version  2014-07-24/GGB - Function created.
 
     void CWSService::start()
     {
@@ -145,16 +136,15 @@ namespace WSd
 
         /* Write some messages for the user. */
 
-      GCL::logger::defaultLogger().logMessage(GCL::logger::info, "Application: WSd.");
-      GCL::logger::defaultLogger().logMessage(GCL::logger::info, "Copyright: Gavin Blakeman 2015.");
-      GCL::logger::defaultLogger().logMessage(GCL::logger::info, "License: GPLv2.");
-      os << "Release Number: " << getReleaseString() << ". Release Date: " << getReleaseDate();
-      GCL::logger::defaultLogger().logMessage(GCL::logger::info, os.str());
+      INFOMESSAGE("Application: WSd.");
+      INFOMESSAGE("Copyright: Gavin Blakeman 2015, 2020.");
+      INFOMESSAGE("License: GPLv2.");
+      INFOMESSAGE(boost::format("Release Number: %s. Release Date: %s.") % getReleaseString() % getReleaseDate());
 
         // Create the state machine
 
       DEBUGMESSAGE("Creating state machine...");
-      stateMachine = new CStateMachine(this, siteID, instrumentID);
+      stateMachine = std::make_unique<CStateMachine>(this, siteID, instrumentID);
       DEBUGMESSAGE("State machine created.");
 
         /* Indicate that the service is starting. */
@@ -165,9 +155,9 @@ namespace WSd
       TRACEEXIT;
     }
 
-    /// Function to stop the daemon
-    //
-    // 2015-05-28/GGB - Function created.
+    /// @brief Function to stop the daemon
+    /// @throws none.
+    /// @version 2015-05-28/GGB - Function created.
 
     void CWSService::stop()
     {
